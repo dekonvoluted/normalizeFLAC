@@ -20,5 +20,31 @@ printUsage()
 	EOF
 }
 
+die()
+{
+    case $1 in
+        1)
+            echo $PROGNAME: ERROR. Too many arguments.;;
+        *)
+            true;;
+    esac
+    printUsage
+    exit $1
+}
+
+main()
+{
+    case $# in
+        0)
+            echo "./";;
+        1)
+            echo "${1}";;
+        *)
+            die 1
+    esac
+}
+
+main "$@"
+
 exit 0
 
