@@ -25,6 +25,8 @@ die()
     case $1 in
         1)
             echo $PROGNAME: ERROR. Too many arguments.;;
+        2)
+            echo $PROGNAME: ERROR. "${2}": No such file or directory.;;
         *)
             true;;
     esac
@@ -32,13 +34,28 @@ die()
     exit $1
 }
 
+process()
+{
+    local ARG=$(realpath "${1}")
+
+    if [ -f "${ARG}" ]
+    then
+        echo "File: ${ARG}"
+    elif [ -d "${ARG}" ]
+    then
+        echo "Dir: ${ARG}"
+    else
+        die 2 "${ARG}"
+    fi
+}
+
 main()
 {
     case $# in
         0)
-            echo "./";;
+            process "./";;
         1)
-            echo "${1}";;
+            process "${1}";;
         *)
             die 1
     esac
