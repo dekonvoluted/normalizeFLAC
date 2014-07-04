@@ -14,7 +14,7 @@ printUsage()
 
 	This script will apply replay gain normalization to FLAC files. The FLAC files are reencoded prior to normalization.
 
-	The script has no options save for the single argument. This argument can be nothing (defaults to the current directory), a specific directory or a FLAC file. In the former two cases, all FLAC files found recursively under the directory will be processed. In the latter case, only the FLAC file will be processed.
+        The script has no options save for the single argument. This argument can be nothing (defaults to the current directory), a specific directory or a FLAC file. In the former two cases, all FLAC files found recursively under the directory will be processed. In the latter case, only the FLAC file will be processed. The script will NOT enter any symlinked directories (as there is a danger of an infinite loop that way).
 
 	The script will process all FLAC files within the same directory (and same level) at the same time. This can take up system resources if the directory has many FLAC files in a flat hierarchy.
 	EOF
@@ -34,6 +34,24 @@ die()
     exit $1
 }
 
+processDir()
+{
+    echo $(basename "${1}")/
+
+    for content in "${1}"/*
+    do
+        if [ -f "${content}" ]
+        then
+            echo "File: ${content}"
+        elif [ -d "${content}" ]
+        then
+            [ -h "${content}" ] || processDir "${content}"
+        fi
+    done
+
+    wait
+}
+
 process()
 {
     local ARG=$(realpath "${1}")
@@ -43,7 +61,7 @@ process()
         echo "File: ${ARG}"
     elif [ -d "${ARG}" ]
     then
-        echo "Dir: ${ARG}"
+        processDir "${ARG}"
     else
         die 2 "${ARG}"
     fi
