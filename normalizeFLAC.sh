@@ -67,7 +67,13 @@ processDir()
             normalize "${content}"
         elif [ -d "${content}" ]
         then
-            [ -h "${content}" ] || processDir "${content}"
+            # Act only on regular files
+            if [ -h "${content}" ]
+            then
+                echo $PROGNAME: Avoiding link "${content}"
+            else
+                processDir "${content}"
+            fi
         fi
     done
 
