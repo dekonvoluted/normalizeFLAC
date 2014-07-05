@@ -12,7 +12,7 @@ printUsage()
     cat <<-EOF
 	Usage $PROGNAME [FILE|DIR]
 
-	This script will apply replay gain normalization to FLAC files. The FLAC files are reencoded prior to normalization.
+	This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis comments tags.
 
         The script has no options save for the single argument. This argument can be nothing (defaults to the current directory), a specific directory or a FLAC file. In the former two cases, all FLAC files found recursively under the directory will be processed. In the latter case, only the FLAC file will be processed. The script will NOT enter any symlinked directories (as there is a danger of an infinite loop that way).
 
