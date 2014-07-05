@@ -7,10 +7,12 @@
 
 readonly PROGNAME=$(basename $0)
 readonly ARGS="$@"
+readonly VERSION=1.0
 
 printUsage()
 {
     cat <<-EOF
+	$PROGNAME version $VERSION
 	Usage $PROGNAME [-h|--help] [FILE|DIR]
 
 	This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis comments tags.
