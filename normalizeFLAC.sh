@@ -60,6 +60,7 @@ processDir()
 {
     echo $(basename "${1}")/
 
+    # Recurse into directory
     for content in "${1}"/*
     do
         if [ -f "${content}" ]
@@ -67,7 +68,7 @@ processDir()
             normalize "${content}"
         elif [ -d "${content}" ]
         then
-            # Act only on regular files
+            # Act only on regular directories
             if [ -h "${content}" ]
             then
                 echo $PROGNAME: Avoiding link "${content}"
@@ -77,6 +78,7 @@ processDir()
         fi
     done
 
+    # Wait for all files to be processed in a directory before moving on
     wait
 }
 
