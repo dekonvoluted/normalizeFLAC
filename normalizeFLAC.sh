@@ -34,6 +34,28 @@ die()
     exit $1
 }
 
+normalize()
+{
+    # Find FLAC files
+    if [[ "${1}" != *.flac ]]
+    then
+        return
+    fi
+
+    # Act only on regular files
+    if [ -h "${1}" ]
+    then
+        echo $PROGNAME: Avoiding link "${1}"
+        return
+    fi
+
+    # Re-encode and normalize
+    flac --silent --force "${1}" || echo -n $PROGNAME: "Encoding error: "
+    metaflac --preserve-modtime --add-replay-gain "${1}" || echo -n $PROGNAME: "Replay gain error: "
+
+    echo $(basename "${1}")
+}
+
 processDir()
 {
     echo $(basename "${1}")/
@@ -42,7 +64,7 @@ processDir()
     do
         if [ -f "${content}" ]
         then
-            echo "File: ${content}"
+            normalize "${content}"
         elif [ -d "${content}" ]
         then
             [ -h "${content}" ] || processDir "${content}"
@@ -58,7 +80,7 @@ process()
 
     if [ -f "${ARG}" ]
     then
-        echo "File: ${ARG}"
+        normalize "${ARG}"
     elif [ -d "${ARG}" ]
     then
         processDir "${ARG}"
