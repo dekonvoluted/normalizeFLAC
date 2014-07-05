@@ -6,17 +6,18 @@
 # A single FLAC file may also be specified
 
 readonly PROGNAME=$(basename $0)
+readonly ARGS="$@"
 
 printUsage()
 {
     cat <<-EOF
-	Usage $PROGNAME [FILE|DIR]
+	Usage $PROGNAME [-h|--help] [FILE|DIR]
 
 	This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis comments tags.
 
-        The script has no options save for the single argument. This argument can be nothing (defaults to the current directory), a specific directory or a FLAC file. In the former two cases, all FLAC files found recursively under the directory will be processed. In the latter case, only the FLAC file will be processed. The script will NOT enter any symlinked directories (as there is a danger of an infinite loop that way).
+	The script takes no options. If called with -h or --help, it prints this message and exits. The script accepts a single argument. This argument can be nothing (defaults to the current directory), a specific directory or a FLAC file. In the former two cases, all FLAC files found recursively under the directory will be processed. In the latter case, only the FLAC file will be processed. The script will NOT enter any symlinked directories (as there is a danger of an infinite loop that way).
 
-	The script will process all FLAC files within the same directory (and same level) at the same time. This can take up system resources if the directory has many FLAC files in a flat hierarchy.
+	The script will process all FLAC files within the same directory (and at the same level) at the same time. This can take up system resources if the directory has many FLAC files in a flat hierarchy.
 	EOF
 }
 
@@ -24,8 +25,10 @@ die()
 {
     case $1 in
         1)
-            echo $PROGNAME: ERROR. Too many arguments.;;
+            echo $PROGNAME: ERROR. Unknown argument.;;
         2)
+            echo $PROGNAME: ERROR. Too many arguments.;;
+        3)
             echo $PROGNAME: ERROR. "${2}": No such file or directory.;;
         *)
             true;;
@@ -93,19 +96,40 @@ process()
     then
         processDir "${ARG}"
     else
-        die 2 "${ARG}"
+        die 3 "${ARG}"
     fi
 }
 
 main()
 {
+    args=$(getopt --name $PROGNAME --options "h" --longoptions "help" -- ${ARGS})
+
+    [ $? -eq 0 ] || die 1
+
+    eval set -- "${args}"
+
+    while test $# -gt 0
+    do
+        case "${1}" in
+            -h|--help)
+                die 0;;
+            --)
+                shift
+                break;;
+            *)
+                shift
+                break;;
+        esac
+        shift
+    done
+
     case $# in
         0)
             process "./";;
         1)
             process "${1}";;
         *)
-            die 1
+            die 2
     esac
 }
 
