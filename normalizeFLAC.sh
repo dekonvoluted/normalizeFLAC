@@ -68,7 +68,7 @@ processDir()
     do
         if [ -f "${content}" ]
         then
-            normalize "${content}"
+            normalize "${content}" &
         elif [ -d "${content}" ]
         then
             # Act only on regular directories
