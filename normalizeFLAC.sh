@@ -37,6 +37,32 @@ die()
     exit $1
 }
 
+reencode()
+{
+    echo "${PROGNAME}: Removing ID3 tags."
+
+    # Decode and extract metadata to temporary location
+    TMP=$(mktemp --directory)
+    cp "${1}" $TMP/original.flac
+    flac --silent --decode --output-name=$TMP/original.wav $TMP/original.flac
+    metaflac --export-tags-to=$TMP/metadata.dat $TMP/original.flac
+
+    # Reencode and import metadata from original file
+    flac --silent --force --output-name="${1}" $TMP/original.wav
+    metaflac --import-tags-from=$TMP/metadata.dat "${1}"
+
+    # Embed album art, if found
+    DIR=$(dirname "${1}")
+    [[ -f "${DIR}"/album.jpg ]] && metaflac --import-picture-from="${DIR}"/album.jpg "${1}"
+
+    # Recalculate replay gain
+    metaflac --remove-replay-gain "${1}"
+    metaflac --add-replay-gain "${1}"
+
+    # Clean up temporary files
+    rm --recursive --force $TMP
+}
+
 normalize()
 {
     # Find FLAC files
@@ -53,8 +79,13 @@ normalize()
     fi
 
     # Re-encode and normalize
-    flac --silent --force "${1}" || echo -n $PROGNAME: "Encoding error: "
-    metaflac --preserve-modtime --add-replay-gain "${1}" || echo -n $PROGNAME: "Replay gain error: "
+    flac --silent --force "${1}"
+    if [[ $? -ne 0 ]]
+    then
+        reencode "${1}"
+    else
+        metaflac --preserve-modtime --add-replay-gain "${1}" || echo -n $PROGNAME: "Replay gain error: "
+    fi
 
     echo $(basename "${1}")
 }
