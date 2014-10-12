@@ -7,7 +7,7 @@
 
 readonly PROGNAME=$(basename $0)
 readonly ARGS="$@"
-readonly VERSION=1.0
+readonly VERSION=1.1
 
 printUsage()
 {
