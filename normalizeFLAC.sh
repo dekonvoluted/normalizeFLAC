@@ -11,7 +11,7 @@ readonly ARGS="$@"
 printUsage()
 {
     cat <<-EOF
-	Usage $PROGNAME [-h|--help] [FILE|DIR]
+	Usage ${PROGNAME} [-h|--help] [FILE|DIR]
 
 	This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis comments tags.
 
@@ -25,11 +25,11 @@ die()
 {
     case $1 in
         1)
-            echo $PROGNAME: ERROR. Unknown argument.;;
+            echo ${PROGNAME}: ERROR. Unknown argument.;;
         2)
-            echo $PROGNAME: ERROR. Too many arguments.;;
+            echo ${PROGNAME}: ERROR. Too many arguments.;;
         3)
-            echo $PROGNAME: ERROR. "${2}": No such file or directory.;;
+            echo ${PROGNAME}: ERROR. "${2}": No such file or directory.;;
         *)
             true;;
     esac
@@ -74,7 +74,7 @@ normalize()
     # Act only on regular files
     if [ -h "${1}" ]
     then
-        echo $PROGNAME: Avoiding link "${1}"
+        echo ${PROGNAME}: Avoiding link "${1}"
         return
     fi
 
@@ -84,7 +84,7 @@ normalize()
     then
         reencode "${1}"
     else
-        metaflac --preserve-modtime --add-replay-gain "${1}" || echo -n $PROGNAME: "Replay gain error: "
+        metaflac --preserve-modtime --add-replay-gain "${1}" || echo -n ${PROGNAME}: "Replay gain error: "
     fi
 
     echo $(basename "${1}")
@@ -105,7 +105,7 @@ processDir()
             # Act only on regular directories
             if [ -h "${content}" ]
             then
-                echo $PROGNAME: Avoiding link "${content}"
+                echo ${PROGNAME}: Avoiding link "${content}"
             else
                 processDir "${content}"
             fi
@@ -133,7 +133,7 @@ process()
 
 main()
 {
-    args=$(getopt --name $PROGNAME --options "h" --longoptions "help" -- ${ARGS})
+    args=$(getopt --name ${PROGNAME} --options "h" --longoptions "help" -- ${ARGS})
 
     [ $? -eq 0 ] || die 1
 
