@@ -27,8 +27,6 @@ die()
         1)
             echo ${PROGNAME}: ERROR. Unknown argument.;;
         2)
-            echo ${PROGNAME}: ERROR. Too many arguments.;;
-        3)
             echo ${PROGNAME}: ERROR. "${2}": No such file or directory.;;
         *)
             true;;
@@ -127,7 +125,7 @@ process()
     then
         processDir "${ARG}"
     else
-        die 3 "${ARG}"
+        die 2 "${ARG}"
     fi
 }
 
@@ -154,14 +152,12 @@ main()
         shift
     done
 
-    case $# in
-        0)
-            process "./";;
-        1)
-            process "${1}";;
-        *)
-            die 2
-    esac
+    if [ $# -eq 0 ]
+    then
+        process "./"
+    else
+        process "$*"
+    fi
 }
 
 main "$@"
