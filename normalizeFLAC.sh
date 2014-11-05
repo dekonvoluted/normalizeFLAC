@@ -48,7 +48,7 @@ reencode()
     metaflac --export-tags-to=$TMP/metadata.dat $TMP/original.flac
 
     # Reencode and import metadata from original file
-    flac --silent --force --output-name="${1}" $TMP/original.wav
+    flac --silent --output-name="${1}" $TMP/original.wav
     metaflac --import-tags-from=$TMP/metadata.dat "${1}"
 
     # Embed album art, if found
