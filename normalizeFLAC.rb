@@ -71,10 +71,29 @@ class FlacFile
     private :reencode
 end
 
-class FlacDir
-    def initialize dirPath
-        @dirPath = dirPath
-    end
+# Process a single directory recursively
+def processDir( dirPath )
+    return if not File.directory?( dirPath )
+
+    puts File.basename( dirPath ) + '/'
+
+    Dir.foreach( dirPath ) { |content|
+        next if content == "." or content == ".."
+
+        contentPath = dirPath + "/" + content
+        next if File.symlink?( contentPath )
+
+        if File.directory?( contentPath )
+            processDir( contentPath )
+        elsif File.file?( contentPath )
+            fork do
+                flacFile = FlacFile.new contentPath
+                flacFile.normalize
+            end
+        end
+    }
+
+    Process.wait
 end
 
 def process( input )
