@@ -5,6 +5,7 @@
 # Reencodes FLAC file (removing any non-standard tags)
 
 require 'tmpdir'
+require 'optparse'
 
 # Normalize a single FLAC file
 class FlacFile
@@ -96,18 +97,46 @@ def processDir( dirPath )
     Process.wait
 end
 
+# Process an input argument
 def process( input )
+    if not File.exists?( input )
+        puts "ERROR. #{input} not found."
+        return
+    end
+
+    inputPath = File.absolute_path( input )
+
     if File.file?( input )
-        flacFile = FlacFile.new input
+        flacFile = FlacFile.new inputPath
         flacFile.normalize
-    elsif File.directory?( input )
-        if not File.symlink?( input )
-            flacDir = FlacDir.new input
+    elsif File.directory?( inputPath )
+        if not File.symlink?( inputPath )
+            processDir inputPath
         end
     end
 end
 
 if __FILE__ == $0
+
+    optparse = OptionParser.new do |opts|
+        opts.banner = "Usage: #{$0} [-h|--help] [FILE|DIR] [FILE|DIR] ..."
+
+        opts.on( '-h', '--help', '''Display help.
+
+This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis tags.
+
+The script takes no options. If called with -h or --help, it prints this help message and exits.
+
+Each file passed as an argument will be processed. Each directory passed as an argument will be searched for FLAC files recursively. The script will avoid any symlinked files or directories as there is a danger of entering into an infinite loop that way.
+
+The script will process all FLAC files within the same directory or at the same time. This can take up system resources if the directory has many FLAC files in a flac hierarchy.''' ) do
+            puts opts
+            exit
+        end
+    end
+
+    optparse.parse!
+
     ARGV.each do | input |
         process input
     end
