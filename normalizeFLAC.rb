@@ -16,7 +16,7 @@ class FlacFile
                 @baseName = File.basename( @filePath )
                 puts @baseName
                 @dirName = File.dirname( @filePath )
-                @albumArt = File.file?( "#{@dirName}" + "/album.jpg" )
+                @albumArt = File.file?( "#{@dirName}/album.jpg" )
                 @validFile = true
                 %x( flac --silent --test "#{@filePath}" )
                 if $?.exitstatus != 0
@@ -76,7 +76,7 @@ end
 def processDir( dirPath )
     return if not File.directory?( dirPath )
 
-    puts File.basename( dirPath ) + '/'
+    puts File.basename( dirPath ) + "/"
 
     Dir.foreach( dirPath ) { |content|
         next if content == "." or content == ".."
@@ -137,7 +137,7 @@ The script will process all FLAC files within the same directory or at the same 
 
     optparse.parse!
 
-    ARGV.each do | input |
+    ARGV.each do |input|
         process input
     end
 end
