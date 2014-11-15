@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
-# Acts on FLAC file(s) or recurses through directory/ies
-# Normalizes FLAC file
-# Reencodes FLAC file (removing any non-standard tags)
+# Normalizes FLAC files one directory at a time
+# Reencodes FLAC files (removing non-standard tags)
 
 require 'tmpdir'
 require 'optparse'
@@ -45,7 +44,7 @@ class FlacFile
     def reencode
         puts "Removing ID3 tags."
 
-        Dir.mktmpdir { |tmpDir|
+        Dir.mktmpdir do | tmpDir |
             FileUtils.cd( tmpDir ) do
                 FileUtils.cp( @filePath, "original.flac" )
 
@@ -67,7 +66,7 @@ class FlacFile
 
             # Calculate replay gain
             %x( metaflac --add-replay-gain "#{@filePath}" )
-        }
+        end
     end
     private :reencode
 end
@@ -78,21 +77,21 @@ def processDir( dirPath )
 
     puts File.basename( dirPath ) + "/"
 
-    Dir.foreach( dirPath ) { |content|
+    Dir.foreach( dirPath ) do | content |
         next if content == "." or content == ".."
 
         contentPath = dirPath + "/" + content
         next if File.symlink?( contentPath )
 
         if File.directory?( contentPath )
-            processDir( contentPath )
+            processDir contentPath
         elsif File.file?( contentPath )
             fork do
                 flacFile = FlacFile.new contentPath
                 flacFile.normalize
             end
         end
-    }
+    end
 
     Process.wait
 end
@@ -118,7 +117,7 @@ end
 
 if __FILE__ == $0
 
-    optparse = OptionParser.new do |opts|
+    optparse = OptionParser.new do | opts |
         opts.banner = "Usage: #{$0} [-h|--help] [FILE|DIR] [FILE|DIR] ..."
 
         opts.on( '-h', '--help', '''Display help.
@@ -127,9 +126,11 @@ This script will reencode FLAC files and apply replay gain normalization. The re
 
 The script takes no options. If called with -h or --help, it prints this help message and exits.
 
-Each file passed as an argument will be processed. Each directory passed as an argument will be searched for FLAC files recursively. The script will avoid any symlinked files or directories as there is a danger of entering into an infinite loop that way.
+Each file passed an an argument will be reencoded and normalized. Each directory passed as an argument will be recursively searched for FLAC files which will then be reencoded and normalized.
 
-The script will process all FLAC files within the same directory or at the same time. This can take up system resources if the directory has many FLAC files in a flac hierarchy.''' ) do
+Files and directories that are symlinked will be avoided to prevent any infinite loops.
+
+Files in the same directory will be processed altogether, at the same time. This can take up system resources if the directory contains a large number of FLAC files.''' ) do
             puts opts
             exit
         end
@@ -137,7 +138,7 @@ The script will process all FLAC files within the same directory or at the same 
 
     optparse.parse!
 
-    ARGV.each do |input|
+    ARGV.each do | input |
         process input
     end
 end
