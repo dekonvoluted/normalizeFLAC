@@ -93,7 +93,7 @@ def processDir( dirPath )
         end
     end
 
-    Process.wait
+    Process.waitall
 end
 
 # Process an input argument
