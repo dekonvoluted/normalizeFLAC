@@ -122,6 +122,8 @@ if __FILE__ == $0
 
         opts.on( '-h', '--help', '''Display help.
 
+Version 2.0
+
 This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis tags.
 
 The script takes no options. If called with -h or --help, it prints this help message and exits.
