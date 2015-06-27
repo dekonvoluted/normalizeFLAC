@@ -118,21 +118,14 @@ end
 if __FILE__ == $0
 
     optparse = OptionParser.new do | opts |
-        opts.banner = "Usage: #{$0} [-h|--help] [FILE|DIR] [FILE|DIR] ..."
+        opts.banner = "Usage: #{$0} [OPTIONS] [FILE|DIR] ..."
 
-        opts.on( '-h', '--help', '''Display help.
+        message = "\nThis script will reencode FLAC files and record the replay gain normalization in the Vorbis tags.\nIf run in a directory, FLAC files will be recursively found and normalized.\nFLAC files in the same directory will be normalized in parallel threads.\nSymlinks will be avoided."
 
-This script will reencode FLAC files and apply replay gain normalization. The replay gain values will be written in the Vorbis tags.
-
-The script takes no options. If called with -h or --help, it prints this help message and exits.
-
-Each file passed an an argument will be reencoded and normalized. Each directory passed as an argument will be recursively searched for FLAC files which will then be reencoded and normalized.
-
-Files and directories that are symlinked will be avoided to prevent any infinite loops.
-
-Files in the same directory will be processed altogether, at the same time. This can take up system resources if the directory contains a large number of FLAC files.''' ) do
-            puts opts
-            exit
+        opts.on( "-h", "--help", "Display this help message" ) do
+                puts opts
+                puts message
+                exit 0
         end
     end
 
